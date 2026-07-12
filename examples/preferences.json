@@ -1,0 +1,485 @@
+{
+  "generated_at": "2026-07-12T12:00:00",
+  "notes": [
+    "EPS=1e-06 used to avoid division by zero",
+    "HALF_LIFE_DAYS=90 for recency decay",
+    "Traits scaled using percentile distribution (floor=5, ceiling=95)"
+  ],
+  "per_game_features": [
+    {
+      "abandonment_flags": {
+        "early_abandon": false,
+        "late_abandon": false
+      },
+      "completion_ratio": 0.78,
+      "enjoyment_score": 91.2,
+      "hours_per_session": 0.35,
+      "last_played": "2026-07-08T12:00:00",
+      "play_count": 340,
+      "playtime_hours": 120.0,
+      "progress_velocity": 0.65,
+      "recency_days": 4,
+      "recency_score": 0.957,
+      "sessions_per_hour": 2.833,
+      "system": "PS5",
+      "title": "Elden Ring",
+      "title_id": "PPSA01234_00"
+    },
+    {
+      "abandonment_flags": {
+        "early_abandon": false,
+        "late_abandon": false
+      },
+      "completion_ratio": 0.95,
+      "enjoyment_score": 79.2,
+      "hours_per_session": 0.69,
+      "last_played": "2026-05-13T12:00:00",
+      "play_count": 90,
+      "playtime_hours": 62.0,
+      "progress_velocity": 1.532,
+      "recency_days": 60,
+      "recency_score": 0.513,
+      "sessions_per_hour": 1.452,
+      "system": "PS4",
+      "title": "Bloodborne",
+      "title_id": "CUSA00900_00"
+    },
+    {
+      "abandonment_flags": {
+        "early_abandon": false,
+        "late_abandon": false
+      },
+      "completion_ratio": 0.88,
+      "enjoyment_score": 76.9,
+      "hours_per_session": 0.75,
+      "last_played": "2026-06-22T12:00:00",
+      "play_count": 60,
+      "playtime_hours": 45.0,
+      "progress_velocity": 1.956,
+      "recency_days": 20,
+      "recency_score": 0.801,
+      "sessions_per_hour": 1.333,
+      "system": "PS5",
+      "title": "God of War Ragnarok",
+      "title_id": "PPSA01512_00"
+    },
+    {
+      "abandonment_flags": {
+        "early_abandon": false,
+        "late_abandon": false
+      },
+      "completion_ratio": 0.62,
+      "enjoyment_score": 73.2,
+      "hours_per_session": 0.18,
+      "last_played": "2026-07-03T12:00:00",
+      "play_count": 210,
+      "playtime_hours": 38.0,
+      "progress_velocity": 1.632,
+      "recency_days": 9,
+      "recency_score": 0.905,
+      "sessions_per_hour": 5.526,
+      "system": "PS5",
+      "title": "Hades",
+      "title_id": "PPSA02020_00"
+    },
+    {
+      "abandonment_flags": {
+        "early_abandon": false,
+        "late_abandon": false
+      },
+      "completion_ratio": 0.4,
+      "enjoyment_score": 79.0,
+      "hours_per_session": 0.5,
+      "last_played": "2026-06-27T12:00:00",
+      "play_count": 180,
+      "playtime_hours": 90.0,
+      "progress_velocity": 0.444,
+      "recency_days": 15,
+      "recency_score": 0.846,
+      "sessions_per_hour": 2.0,
+      "system": "PS4",
+      "title": "Stardew Valley",
+      "title_id": "CUSA05563_00"
+    },
+    {
+      "abandonment_flags": {
+        "early_abandon": false,
+        "late_abandon": false
+      },
+      "completion_ratio": 0.55,
+      "enjoyment_score": 65.0,
+      "hours_per_session": 0.4,
+      "last_played": "2026-06-09T12:00:00",
+      "play_count": 75,
+      "playtime_hours": 30.0,
+      "progress_velocity": 1.833,
+      "recency_days": 33,
+      "recency_score": 0.693,
+      "sessions_per_hour": 2.5,
+      "system": "PS5",
+      "title": "Returnal",
+      "title_id": "PPSA01337_00"
+    },
+    {
+      "abandonment_flags": {
+        "early_abandon": false,
+        "late_abandon": false
+      },
+      "completion_ratio": 1.0,
+      "enjoyment_score": 71.3,
+      "hours_per_session": 1.2,
+      "last_played": "2026-06-02T12:00:00",
+      "play_count": 20,
+      "playtime_hours": 24.0,
+      "progress_velocity": 4.167,
+      "recency_days": 40,
+      "recency_score": 0.641,
+      "sessions_per_hour": 0.833,
+      "system": "PS5",
+      "title": "Disco Elysium - The Final Cut",
+      "title_id": "PPSA02719_00"
+    },
+    {
+      "abandonment_flags": {
+        "early_abandon": false,
+        "late_abandon": true
+      },
+      "completion_ratio": 0.2,
+      "enjoyment_score": 47.2,
+      "hours_per_session": 0.18,
+      "last_played": "2026-03-14T12:00:00",
+      "play_count": 300,
+      "playtime_hours": 55.0,
+      "progress_velocity": 0.364,
+      "recency_days": 120,
+      "recency_score": 0.264,
+      "sessions_per_hour": 5.455,
+      "system": "PS4",
+      "title": "Minecraft",
+      "title_id": "CUSA00744_00"
+    },
+    {
+      "abandonment_flags": {
+        "early_abandon": true,
+        "late_abandon": true
+      },
+      "completion_ratio": 0.15,
+      "enjoyment_score": 30.8,
+      "hours_per_session": 0.3,
+      "last_played": "2026-07-06T12:00:00",
+      "play_count": 60,
+      "playtime_hours": 18.0,
+      "progress_velocity": 0.833,
+      "recency_days": 6,
+      "recency_score": 0.936,
+      "sessions_per_hour": 3.333,
+      "system": "PS5",
+      "title": "Minecraft",
+      "title_id": "PPSA04593_00"
+    },
+    {
+      "abandonment_flags": {
+        "early_abandon": false,
+        "late_abandon": true
+      },
+      "completion_ratio": 0.3,
+      "enjoyment_score": 37.2,
+      "hours_per_session": 0.45,
+      "last_played": "2025-12-24T12:00:00",
+      "play_count": 88,
+      "playtime_hours": 40.0,
+      "progress_velocity": 0.75,
+      "recency_days": 200,
+      "recency_score": 0.108,
+      "sessions_per_hour": 2.2,
+      "system": "PS4",
+      "title": "Sekiro: Shadows Die Twice",
+      "title_id": "CUSA09564_00"
+    },
+    {
+      "abandonment_flags": {
+        "early_abandon": false,
+        "late_abandon": false
+      },
+      "completion_ratio": 1.0,
+      "enjoyment_score": 58.0,
+      "hours_per_session": 0.5,
+      "last_played": "2026-05-28T12:00:00",
+      "play_count": 12,
+      "playtime_hours": 6.0,
+      "progress_velocity": 16.667,
+      "recency_days": 45,
+      "recency_score": 0.607,
+      "sessions_per_hour": 2.0,
+      "system": "PS4",
+      "title": "Untitled Goose Game",
+      "title_id": "CUSA14930_00"
+    },
+    {
+      "abandonment_flags": {
+        "early_abandon": false,
+        "late_abandon": false
+      },
+      "completion_ratio": 0.7,
+      "enjoyment_score": 74.5,
+      "hours_per_session": 0.73,
+      "last_played": "2026-05-03T12:00:00",
+      "play_count": 110,
+      "playtime_hours": 80.0,
+      "progress_velocity": 0.875,
+      "recency_days": 70,
+      "recency_score": 0.459,
+      "sessions_per_hour": 1.375,
+      "system": "PS5",
+      "title": "Cyberpunk 2077",
+      "title_id": "PPSA01522_00"
+    },
+    {
+      "abandonment_flags": {
+        "early_abandon": true,
+        "late_abandon": true
+      },
+      "completion_ratio": 0.12,
+      "enjoyment_score": 6.6,
+      "hours_per_session": 0.75,
+      "last_played": "2025-09-15T12:00:00",
+      "play_count": 20,
+      "playtime_hours": 15.0,
+      "progress_velocity": 0.8,
+      "recency_days": 300,
+      "recency_score": 0.036,
+      "sessions_per_hour": 1.333,
+      "system": "PS4",
+      "title": "Death Stranding",
+      "title_id": "CUSA13780_00"
+    },
+    {
+      "abandonment_flags": {
+        "early_abandon": false,
+        "late_abandon": false
+      },
+      "completion_ratio": 0.45,
+      "enjoyment_score": 60.4,
+      "hours_per_session": 0.09,
+      "last_played": "2026-07-10T12:00:00",
+      "play_count": 140,
+      "playtime_hours": 12.0,
+      "progress_velocity": 3.75,
+      "recency_days": 2,
+      "recency_score": 0.978,
+      "sessions_per_hour": 11.667,
+      "system": "PS4",
+      "title": "Tetris Effect",
+      "title_id": "CUSA11704_00"
+    }
+  ],
+  "preferences": {
+    "agent_features": {
+      "avoid_signals": [
+        "drawn-out mid-game: 29% late abandon rate"
+      ],
+      "platform_recency": {
+        "PS4": 34.2,
+        "PS5": 65.8
+      },
+      "positive_signals": [
+        "short-session loops: median session 0.5h",
+        "favors PS5 lately: 66% recency-weighted playtime"
+      ],
+      "preferred_commitment_style": "mixed",
+      "preferred_session_style": "mixed",
+      "weights": {
+        "abandonment_penalty": {
+          "early": 15,
+          "late": 10
+        },
+        "enjoyment": {
+          "completion": 0.2,
+          "playtime_log": 0.35,
+          "recency": 0.25,
+          "replay": 0.2
+        },
+        "half_life_days": 90,
+        "thresholds": {
+          "finisher_threshold": 65,
+          "snackable_vs_marathon_delta": 15,
+          "tourist_threshold": 35
+        }
+      }
+    },
+    "summary": {
+      "game_count": 14,
+      "recent_games": [
+        {
+          "recency_score": 0.978,
+          "system": "PS4",
+          "title": "Tetris Effect"
+        },
+        {
+          "recency_score": 0.957,
+          "system": "PS5",
+          "title": "Elden Ring"
+        },
+        {
+          "recency_score": 0.936,
+          "system": "PS5",
+          "title": "Minecraft"
+        },
+        {
+          "recency_score": 0.905,
+          "system": "PS5",
+          "title": "Hades"
+        },
+        {
+          "recency_score": 0.846,
+          "system": "PS4",
+          "title": "Stardew Valley"
+        },
+        {
+          "recency_score": 0.801,
+          "system": "PS5",
+          "title": "God of War Ragnarok"
+        },
+        {
+          "recency_score": 0.693,
+          "system": "PS5",
+          "title": "Returnal"
+        },
+        {
+          "recency_score": 0.641,
+          "system": "PS5",
+          "title": "Disco Elysium - The Final Cut"
+        },
+        {
+          "recency_score": 0.607,
+          "system": "PS4",
+          "title": "Untitled Goose Game"
+        },
+        {
+          "recency_score": 0.513,
+          "system": "PS4",
+          "title": "Bloodborne"
+        }
+      ],
+      "systems": {
+        "PS4": {
+          "count": 7,
+          "playtime_hours": 280.0
+        },
+        "PS5": {
+          "count": 7,
+          "playtime_hours": 355.0
+        }
+      },
+      "top_games": [
+        {
+          "enjoyment_score": 91.2,
+          "system": "PS5",
+          "title": "Elden Ring"
+        },
+        {
+          "enjoyment_score": 79.2,
+          "system": "PS4",
+          "title": "Bloodborne"
+        },
+        {
+          "enjoyment_score": 79.0,
+          "system": "PS4",
+          "title": "Stardew Valley"
+        },
+        {
+          "enjoyment_score": 76.9,
+          "system": "PS5",
+          "title": "God of War Ragnarok"
+        },
+        {
+          "enjoyment_score": 74.5,
+          "system": "PS5",
+          "title": "Cyberpunk 2077"
+        },
+        {
+          "enjoyment_score": 73.2,
+          "system": "PS5",
+          "title": "Hades"
+        },
+        {
+          "enjoyment_score": 71.3,
+          "system": "PS5",
+          "title": "Disco Elysium - The Final Cut"
+        },
+        {
+          "enjoyment_score": 65.0,
+          "system": "PS5",
+          "title": "Returnal"
+        },
+        {
+          "enjoyment_score": 60.4,
+          "system": "PS4",
+          "title": "Tetris Effect"
+        },
+        {
+          "enjoyment_score": 58.0,
+          "system": "PS4",
+          "title": "Untitled Goose Game"
+        }
+      ],
+      "total_playtime_hours": 635.0
+    },
+    "traits": {
+      "completionist_bias": {
+        "contributors": [
+          "Disco Elysium - The Final Cut",
+          "Untitled Goose Game",
+          "Bloodborne"
+        ],
+        "explanation": "Based on avg completion ratio",
+        "raw_metric": "completion: 58% avg",
+        "value": 50.0
+      },
+      "friction_tolerance": {
+        "contributors": [
+          "Elden Ring",
+          "Bloodborne",
+          "God of War Ragnarok"
+        ],
+        "explanation": "2 early + 4 late abandons / 14 games",
+        "raw_metric": "early: 14%, late: 29%",
+        "value": 17.9
+      },
+      "marathon_bias": {
+        "contributors": [
+          "Disco Elysium - The Final Cut",
+          "God of War Ragnarok",
+          "Death Stranding"
+        ],
+        "explanation": "Based on median 0.5 hours/session",
+        "raw_metric": "hrs/session: 0.5 median",
+        "value": 64.3
+      },
+      "snackable_bias": {
+        "contributors": [
+          "Tetris Effect",
+          "Hades",
+          "Minecraft"
+        ],
+        "explanation": "Based on median 2.10 sessions/hour",
+        "raw_metric": "sessions/hr: 2.10 median",
+        "value": 71.4
+      },
+      "variety_bias": {
+        "contributors": [
+          "PS5",
+          "PS4"
+        ],
+        "explanation": "Entropy across 2 systems",
+        "raw_metric": "entropy: 1.00",
+        "value": 95.0
+      }
+    }
+  },
+  "schema_version": "1.0",
+  "source": {
+    "file": "psn_export_example.json",
+    "system": "playstation"
+  }
+}

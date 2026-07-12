@@ -1,0 +1,15 @@
+title,system,playtime_hours,play_count,last_played,enjoyment_score,completion_ratio,recency_days,hours_per_session,sessions_per_hour,early_abandon,late_abandon
+Elden Ring,PS5,120.0,340,2026-07-08,91.2,0.78,4,0.35,2.833,False,False
+Bloodborne,PS4,62.0,90,2026-05-13,79.2,0.95,60,0.69,1.452,False,False
+God of War Ragnarok,PS5,45.0,60,2026-06-22,76.9,0.88,20,0.75,1.333,False,False
+Hades,PS5,38.0,210,2026-07-03,73.2,0.62,9,0.18,5.526,False,False
+Stardew Valley,PS4,90.0,180,2026-06-27,79.0,0.4,15,0.5,2.0,False,False
+Returnal,PS5,30.0,75,2026-06-09,65.0,0.55,33,0.4,2.5,False,False
+Disco Elysium - The Final Cut,PS5,24.0,20,2026-06-02,71.3,1.0,40,1.2,0.833,False,False
+Minecraft,PS4,55.0,300,2026-03-14,47.2,0.2,120,0.18,5.455,False,True
+Minecraft,PS5,18.0,60,2026-07-06,30.8,0.15,6,0.3,3.333,True,True
+Sekiro: Shadows Die Twice,PS4,40.0,88,2025-12-24,37.2,0.3,200,0.45,2.2,False,True
+Untitled Goose Game,PS4,6.0,12,2026-05-28,58.0,1.0,45,0.5,2.0,False,False
+Cyberpunk 2077,PS5,80.0,110,2026-05-03,74.5,0.7,70,0.73,1.375,False,False
+Death Stranding,PS4,15.0,20,2025-09-15,6.6,0.12,300,0.75,1.333,True,True
+Tetris Effect,PS4,12.0,140,2026-07-10,60.4,0.45,2,0.09,11.667,False,False
