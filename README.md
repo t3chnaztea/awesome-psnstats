@@ -61,9 +61,15 @@ Platform recency   : PS5 66% / PS4 34%
 
 ## Why
 
+The most-starred "PSN API" projects — [psn-api](https://github.com/achievements-app/psn-api), [psn-php](https://github.com/Tustin/psn-php), and [psnawp](https://github.com/isFakeAccount/psnawp) (which this is built on) — are **developer libraries**: they hand you raw endpoints, not files. The only end-user *tools* scrape a third-party website. Nothing shipped turns your library into files you own, and nothing anywhere computes a taste profile from it.
+
+**`psnstats` is the first end-user tool on Sony's own API with playtime export, multi-format output, delta compare, and a taste-analysis layer.**
+
 - **You own the files.** [Exophase](https://www.exophase.com/) and [PSNProfiles](https://psnprofiles.com/) show your stats on *their* website. `psnstats` gives you `.csv` and `.json` on disk to keep, diff, and feed to other tools.
 - **Playtime *and* taste.** Plenty of scrapers can list your trophies. Nothing else turns your actual playtime into an enjoyment model and a portable taste profile for an AI agent.
 - **Local-first.** No account, no server, no telemetry. Your NPSSO token is sent only to Sony's own API.
+
+It deliberately skips the social surface (friends, presence, messaging, search) — that's what the libraries are for. This is a tool, not a wrapper.
 
 ## Quickstart
 
@@ -191,6 +197,7 @@ Without `--analyze`, you get a leaner base library CSV (title, ids, playtime, pl
 
 ## Roadmap
 
+- Purchased-games list → an "owned but never played" backlog report
 - Genre/metadata enrichment (external catalog join)
 - A Steam adapter reusing the same pure analysis engine
 - `stdout` streaming for piping into other tools
