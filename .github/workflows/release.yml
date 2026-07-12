@@ -1,8 +1,7 @@
 name: Release
 
-# Publishes to PyPI via Trusted Publishing (OIDC) when a v* tag is pushed.
-# No long-lived token is stored; PyPI is configured with this repo + workflow
-# as a trusted publisher for the "awesome-psnstats" project.
+# Publishes to PyPI when a v* tag is pushed, using the PYPI_API_TOKEN repo
+# secret (project owner rotates/scopes it after first publish).
 
 on:
   push:
@@ -29,9 +28,6 @@ jobs:
   publish:
     needs: build
     runs-on: ubuntu-latest
-    environment: pypi
-    permissions:
-      id-token: write   # required for Trusted Publishing
     steps:
       - uses: actions/download-artifact@v4
         with:
@@ -39,3 +35,5 @@ jobs:
           path: dist/
       - name: Publish to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          password: ${{ secrets.PYPI_API_TOKEN }}
