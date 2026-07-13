@@ -5,7 +5,7 @@ build-backend = "hatchling.build"
 [project]
 name = "awesome-psnstats"
 dynamic = ["version"]
-description = "Export your PlayStation Network play history to CSV/JSON and build an AI-ready taste profile, entirely on your machine."
+description = "Export your PlayStation Network play history to CSV/JSON and build an LLM-ready taste profile (with prompts), entirely on your machine."
 readme = "README.md"
 license = "MIT"
 requires-python = ">=3.10"

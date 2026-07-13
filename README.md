@@ -1,6 +1,6 @@
 # psnstats
 
-**Export your PlayStation Network play history to CSV/JSON and build an AI-ready taste profile, entirely on your machine.**
+**Export your PlayStation Network play history to CSV/JSON and build an LLM-ready taste profile (with prompts), entirely on your machine.**
 
 [![PyPI](https://img.shields.io/pypi/v/awesome-psnstats.svg)](https://pypi.org/project/awesome-psnstats/)
 [![Python versions](https://img.shields.io/pypi/pyversions/awesome-psnstats.svg)](https://pypi.org/project/awesome-psnstats/)
@@ -8,7 +8,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
 
-`psnstats` pulls every PS4/PS5 title you've played, with real playtime and play counts, into plain `.csv` and `.json` files you own. Add `--analyze` and it also scores each game, derives five player traits, and writes a `preferences.json` you can hand to an AI agent to get recommendations that actually fit how you play.
+`psnstats` pulls every PS4/PS5 title you've played, with real playtime and play counts, into plain `.csv` and `.json` files you own. Add `--analyze` and it also scores each game, derives five player traits, and writes a `preferences.json` you can hand to an LLM to get recommendations that actually fit how you play.
 
 Your NPSSO session token is only ever sent to Sony. Nothing else leaves your machine.
 
@@ -66,7 +66,7 @@ The most-starred "PSN API" projects — [psn-api](https://github.com/achievement
 **`psnstats` is the first end-user tool on Sony's own API with playtime export, multi-format output, delta compare, and a taste-analysis layer.**
 
 - **You own the files.** [Exophase](https://www.exophase.com/) and [PSNProfiles](https://psnprofiles.com/) show your stats on *their* website. `psnstats` gives you `.csv` and `.json` on disk to keep, diff, and feed to other tools.
-- **Playtime *and* taste.** Plenty of scrapers can list your trophies. Nothing else turns your actual playtime into an enjoyment model and a portable taste profile for an AI agent.
+- **Playtime *and* taste.** Plenty of scrapers can list your trophies. Nothing else turns your actual playtime into an enjoyment model and a portable taste profile for an LLM.
 - **Local-first.** No account, no server, no telemetry. Your NPSSO token is sent only to Sony's own API.
 
 It deliberately skips the social surface (friends, presence, messaging, search) — that's what the libraries are for. This is a tool, not a wrapper.
@@ -115,17 +115,27 @@ From the per-game scores it derives **five player traits** (each 0-100):
 - **Friction tolerance** — do you stick with hard/slow games or drop them?
 - **Variety** — how spread across platforms/kinds of games are you?
 
-And an **`agent_features`** block: a preferred session style, commitment style, platform recency split, and plain-language positive/avoid signals — plus the exact weights and thresholds used, so an AI can reason about *why*.
+And an **`agent_features`** block: a preferred session style, commitment style, platform recency split, and plain-language positive/avoid signals — plus the exact weights and thresholds used, so an LLM can reason about *why*.
 
-### Hand it to an AI
+### The prompts
 
-`preferences.json` is designed to be pasted straight into a chat with an AI:
+`preferences.json` is designed to be pasted straight into a chat with an LLM. Three starters:
+
+**Get recommendations:**
 
 > Here is my PlayStation taste profile as JSON. Based on the traits, enjoyment scores, and positive/avoid signals, recommend 5 games I haven't played that fit how I actually play — and for each, say which signal it matches.
 >
 > ```json
 > { ...paste the contents of preferences.json... }
 > ```
+
+**Triage your backlog** (paste `library.csv` too):
+
+> Here are my taste profile and full play history. Which games I started but didn't finish are worth going back to, and which should I officially drop? Use my friction tolerance and abandonment signals to justify each call.
+
+**Buy advice:**
+
+> Here is my taste profile. I'm considering buying <game>. Predict how likely I am to actually finish and enjoy it, citing the specific traits and signals that support the prediction. Be honest if it matches my avoid signals.
 
 The filename stays stable (never dated), so you can point a tool or agent at `./psn-export/preferences.json` and re-run monthly to keep it fresh.
 
