@@ -124,6 +124,21 @@ From the per-game scores it derives five player traits (each 0-100): snackable (
 
 `preferences.json` and the wishlist files keep stable, un-dated names, so you can point a tool or agent at them and re-run monthly to keep them fresh.
 
+## Claude Code plugin
+
+Those prompts are packaged as a proper agent-skills layer:
+[**awesome-psn-skills**](https://github.com/t3chnaztea/awesome-psn-skills), a
+[Claude Code](https://claude.com/claude-code) plugin. Instead of pasting JSON
+into a chat, install the plugin and your coding agent loads the right skill on
+demand: producing and refreshing the export, reading your taste profile,
+triaging your backlog, and ranking your wishlist, each with the doctrine to
+read the scoring correctly and never invent a title.
+
+```
+/plugin marketplace add t3chnaztea/awesome-psn-skills
+/plugin install psn@t3chnaztea-psn
+```
+
 ## Output files
 
 Everything goes to `./psn-export/` (change with `--output`):
