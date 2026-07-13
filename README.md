@@ -1,6 +1,6 @@
 # psnstats
 
-**Export your PlayStation Network play history to CSV/JSON and build an LLM-ready taste profile (with prompts), entirely on your machine.**
+Export your PS4/PS5 play history from the PlayStation Network to CSV/JSON, and optionally build an LLM-ready taste profile (with prompts), entirely on your machine.
 
 [![PyPI](https://img.shields.io/pypi/v/awesome-psnstats.svg)](https://pypi.org/project/awesome-psnstats/)
 [![Python versions](https://img.shields.io/pypi/pyversions/awesome-psnstats.svg)](https://pypi.org/project/awesome-psnstats/)
@@ -8,22 +8,59 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
 
-`psnstats` pulls every PS4/PS5 title you've played, with real playtime and play counts, into plain `.csv` and `.json` files you own. Add `--analyze` and it also scores each game, derives five player traits, and writes a `preferences.json` you can hand to an LLM to get recommendations that actually fit how you play.
+`psnstats` is an end-user command-line tool, not an API wrapper. It fetches every PS4/PS5 title you have played (playtime, play counts, last played), writes them to files you own, and can layer on trophy completion, a taste-analysis profile for LLM use, a run-to-run diff, and a store wishlist export. It deliberately skips PSN's social surface (friends, presence, messaging, search); if you need those, use [psnawp](https://github.com/isFakeAccount/psnawp) directly, which this tool is built on.
 
-Your NPSSO session token is only ever sent to Sony. Nothing else leaves your machine.
+## How to install
 
-## What it looks like
+### From PyPI
 
 ```
-======================================================================
-ANALYSIS REPORT
-======================================================================
+pipx install awesome-psnstats
+```
 
-fetch ok   : 131 games from API
-export ok  : 14 games kept
-             (skipped 3 off-platform, 114 under threshold)
-analyze ok : 14 games
+(or `pip install awesome-psnstats`). The console command is `psnstats`.
 
+## Getting Started
+
+> [!CAUTION]
+> This tool uses an unofficial, reverse-engineered PlayStation Network API (via the `psnawp` library, which self rate limits at 300 requests per 15 minutes). Normal, occasional runs are low-risk, but excessive use may lead to your PSN account being temporarily or permanently banned. Your NPSSO token is a session cookie equivalent to your password: `psnstats` sends it only to Sony's own API endpoints, and nothing else leaves your machine.
+
+To get started you need to obtain your npsso (64 character code):
+
+1. Log in to your [PlayStation](https://www.playstation.com/) account in your browser.
+2. In another tab of the same browser, go to `https://ca.account.sony.com/api/v1/ssocookie`.
+3. If you are logged in you should see a text similar to this:
+
+```json
+{"npsso":"<64 character npsso code>"}
+```
+
+The npsso expires after about 60 days; get a fresh one when authentication starts failing.
+
+Following is a quick example of how to use this tool:
+
+```bash
+export PSN_NPSSO="<64 character npsso code>"
+
+# Base export: library CSV + JSON into ./psn-export/
+psnstats
+
+# Add the taste profile (preferences.json, traits, report)
+psnstats --analyze
+
+# Enrich with trophy completion, and also export your store wishlist
+psnstats --analyze --trophies --wishlist
+
+# Diff against a previous run
+psnstats --analyze --compare ./psn-export/preferences.json
+
+# Another account's public library
+psnstats --user VaultTec-Co
+```
+
+A run with `--analyze` prints a report like this (synthetic data from [examples/](examples/)):
+
+```
 ----------------------------------------------------------------------
 TOP 10 GAMES (by enjoyment)
 ----------------------------------------------------------------------
@@ -32,13 +69,7 @@ TOP 10 GAMES (by enjoyment)
 1   Elden Ring                     PS5  91.2   120   340    2026-07
 2   Bloodborne                     PS4  79.2   62    90     2026-05
 3   Stardew Valley                 PS4  79.0   90    180    2026-06
-4   God of War Ragnarok            PS5  76.9   45    60     2026-06
-5   Cyberpunk 2077                 PS5  74.5   80    110    2026-05
-6   Hades                          PS5  73.2   38    210    2026-07
-7   Disco Elysium - The Final Cut  PS5  71.3   24    20     2026-06
-8   Returnal                       PS5  65.0   30    75     2026-06
-9   Tetris Effect                  PS4  60.4   12    140    2026-07
-10  Untitled Goose Game            PS4  58.0   6     12     2026-05
+...
 
 ----------------------------------------------------------------------
 PLAYER TRAITS
@@ -48,55 +79,11 @@ Marathon       [############--------]  64.3  (hrs/session: 0.5 median)
 Completionist  [##########----------]  50.0  (completion: 58% avg)
 Friction Tol   [###-----------------]  17.9  (early: 14%, late: 29%)
 Variety        [###################-]  95.0  (entropy: 1.00)
-
-----------------------------------------------------------------------
-PLAY STYLE
-----------------------------------------------------------------------
-Session style      : mixed
-Commitment style   : mixed
-Platform recency   : PS5 66% / PS4 34%
 ```
 
-(Example above is [synthetic data](examples/); your own run reflects your library.)
+## How the analysis works
 
-## Why
-
-The most-starred "PSN API" projects — [psn-api](https://github.com/achievements-app/psn-api), [psn-php](https://github.com/Tustin/psn-php), and [psnawp](https://github.com/isFakeAccount/psnawp) (which this is built on) — are **developer libraries**: they hand you raw endpoints, not files. The only end-user *tools* scrape a third-party website. Nothing shipped turns your library into files you own, and nothing anywhere computes a taste profile from it.
-
-**`psnstats` is the first end-user tool on Sony's own API with playtime export, multi-format output, delta compare, and a taste-analysis layer.**
-
-- **You own the files.** [Exophase](https://www.exophase.com/) and [PSNProfiles](https://psnprofiles.com/) show your stats on *their* website. `psnstats` gives you `.csv` and `.json` on disk to keep, diff, and feed to other tools.
-- **Playtime *and* taste.** Plenty of scrapers can list your trophies. Nothing else turns your actual playtime into an enjoyment model and a portable taste profile for an LLM.
-- **Local-first.** No account, no server, no telemetry. Your NPSSO token is sent only to Sony's own API.
-
-It deliberately skips the social surface (friends, presence, messaging, search) — that's what the libraries are for. This is a tool, not a wrapper.
-
-## Quickstart
-
-Install with [pipx](https://pipx.pypa.io/) (isolated) or pip:
-
-```bash
-pipx install awesome-psnstats     # console command is: psnstats
-```
-
-Get your NPSSO token (a session cookie):
-
-1. Log in to [playstation.com](https://www.playstation.com/) in your browser.
-2. In the same browser, open <https://ca.account.sony.com/api/v1/ssocookie>.
-3. Copy the 64-character `npsso` value from the JSON.
-
-Run it:
-
-```bash
-export PSN_NPSSO="paste_your_token_here"
-psnstats --analyze
-```
-
-That writes `./psn-export/` with your library CSV, a JSON export, and `preferences.json`.
-
-## The taste model
-
-With `--analyze`, every game gets an **enjoyment score** (0-100), a weighted blend of four signals:
+With `--analyze`, every game gets an enjoyment score (0-100), a weighted blend of four signals:
 
 ```
 enjoyment = 0.35 * playtime (log-scaled)
@@ -105,25 +92,19 @@ enjoyment = 0.35 * playtime (log-scaled)
           + 0.20 * replay    (play count + long-session bonuses)
 ```
 
-Two abandonment penalties then apply: **-15** if you bounced early (under 20% complete after 3+ sessions) and **-10** if you stalled late (10+ hours in, under 40% complete). Completion signals require `--trophies`; without it, completion goes neutral.
+Two abandonment penalties then apply: -15 if you bounced early (under 20% complete after 3+ sessions) and -10 if you stalled late (10+ hours in, under 40% complete). Completion signals require `--trophies`; without it, completion goes neutral.
 
-From the per-game scores it derives **five player traits** (each 0-100):
+From the per-game scores it derives five player traits (each 0-100): snackable (short, frequent bursts), marathon (long single sittings), completionist (how far into games you push), friction tolerance (whether you stick with hard/slow games or drop them), and variety (spread across platforms and kinds of games).
 
-- **Snackable** — do you play in short, frequent bursts?
-- **Marathon** — or long single sittings?
-- **Completionist** — how far into games do you push?
-- **Friction tolerance** — do you stick with hard/slow games or drop them?
-- **Variety** — how spread across platforms/kinds of games are you?
+`preferences.json` also carries an `agent_features` block: session style, commitment style, platform recency split, plain-language positive/avoid signals, and the exact weights and thresholds used, so an LLM can reason about why a score is what it is.
 
-And an **`agent_features`** block: a preferred session style, commitment style, platform recency split, and plain-language positive/avoid signals — plus the exact weights and thresholds used, so an LLM can reason about *why*.
+## Example prompts
 
-### The prompts
-
-`preferences.json` is designed to be pasted straight into a chat with an LLM. Four starters:
+`preferences.json` is written to be pasted straight into a chat with an LLM:
 
 **Get recommendations:**
 
-> Here is my PlayStation taste profile as JSON. Based on the traits, enjoyment scores, and positive/avoid signals, recommend 5 games I haven't played that fit how I actually play — and for each, say which signal it matches.
+> Here is my PlayStation taste profile as JSON. Based on the traits, enjoyment scores, and positive/avoid signals, recommend 5 games I haven't played that fit how I actually play, and for each, say which signal it matches.
 >
 > ```json
 > { ...paste the contents of preferences.json... }
@@ -141,9 +122,17 @@ And an **`agent_features`** block: a preferred session style, commitment style, 
 
 > Here are my taste profile and my store wishlist. Rank the wishlist by how likely I am to actually play and finish each game, not by hype. Flag anything that matches my avoid signals, and tell me which one to buy next and which to quietly remove.
 
-The filename stays stable (never dated), so you can point a tool or agent at `./psn-export/preferences.json` and re-run monthly to keep it fresh.
+`preferences.json` and the wishlist files keep stable, un-dated names, so you can point a tool or agent at them and re-run monthly to keep them fresh.
 
-## CSV schema
+## Output files
+
+Everything goes to `./psn-export/` (change with `--output`):
+
+- `psn_library_<date>.csv`: the per-game export (see schema below)
+- `psn_export_<date>.json`: the same data as JSON
+- `preferences.json`: the taste profile (`--analyze`; stable filename)
+- `psn_report_<date>.md`: the report as markdown (`--format md`)
+- `wishlist.csv` / `wishlist.json`: your store wishlist (`--wishlist`; stable filenames) with name, edition, platforms, and current base/discounted price
 
 With `--analyze`, `psn_library_<date>.csv` has 12 columns:
 
@@ -162,31 +151,31 @@ With `--analyze`, `psn_library_<date>.csv` has 12 columns:
 | `early_abandon` | Bounced early (bool) |
 | `late_abandon` | Stalled late (bool) |
 
-Without `--analyze`, you get a leaner base library CSV (title, ids, playtime, plays, last played).
+Without `--analyze`, the CSV is a leaner base export (title, ids, playtime, plays, last played).
 
 ## Flag reference
 
 **Authentication** (precedence: `--npsso` > `--npsso-file` > `$PSN_NPSSO`)
-- `--npsso TOKEN` — pass the token inline
-- `--npsso-file PATH` — read from a file (default probe: `~/.config/psnstats/npsso`; `chmod 600` it)
+- `--npsso TOKEN`: pass the token inline
+- `--npsso-file PATH`: read from a file (default probe: `~/.config/psnstats/npsso`; `chmod 600` it)
 
 **Scope**
-- `--user ONLINE_ID` — export another account's *public* library instead of your own
-- `--platforms LIST` — comma list of `ps4,ps5,other` (default `ps4,ps5`)
-- `--min-hours N` — skip titles under N hours (default `1`; use `0` for a full dump)
-- `--limit N` — stop after N kept titles (handy for a quick test)
-- `--wishlist` — also export your store wishlist to `wishlist.csv`/`wishlist.json` (own account only; can't combine with `--user`)
+- `--user ONLINE_ID`: export another account's *public* library instead of your own
+- `--platforms LIST`: comma list of `ps4,ps5,other` (default `ps4,ps5`)
+- `--min-hours N`: skip titles under N hours (default `1`; use `0` for a full dump)
+- `--limit N`: stop after N kept titles (handy for a quick test)
+- `--wishlist`: also export your store wishlist (own account only; can't combine with `--user`)
 
 **Enrichment**
-- `--trophies` — fetch trophy completion (fills completion + abandonment; adds ~80 requests on a 400-game library)
+- `--trophies`: fetch trophy completion (fills completion + abandonment; adds ~80 requests on a 400-game library)
 
 **Analysis**
-- `--analyze` — compute the taste profile (default: off)
-- `--compare PATH` — diff this run against a previous `preferences.json` (implies `--analyze`)
+- `--analyze`: compute the taste profile (default: off)
+- `--compare PATH`: diff this run against a previous `preferences.json` (implies `--analyze`)
 
 **Output**
-- `--output DIR` — output directory (default `./psn-export`)
-- `--format LIST` — comma list of `csv,json,md,all` (default `csv,json`); `md` is a markdown report
+- `--output DIR`: output directory (default `./psn-export`)
+- `--format LIST`: comma list of `csv,json,md,all` (default `csv,json`); `md` is the report and implies `--analyze`
 
 **Display**
 - `--top N`, `--sort enjoyment|hours|recent|title`, `--quiet`, `--silent`, `--verbose`, `--no-color`, `--version`
@@ -195,32 +184,32 @@ Without `--analyze`, you get a leaner base library CSV (title, ids, playtime, pl
 
 ## About your NPSSO token
 
-- An NPSSO is a **session cookie**. Treat it like a password: anyone with it can act as you on PSN.
-- It **expires after ~60 days**; regenerate it when auth starts failing.
-- `psnstats` sends it **only to Sony's own API endpoints** — never to any third party.
+- An NPSSO is a session cookie. Treat it like a password: anyone with it can act as you on PSN.
+- It expires after ~60 days; regenerate it when auth starts failing.
+- `psnstats` sends it only to Sony's own API endpoints, never to any third party.
 - Prefer a file over an env var for long-term use, and lock it down: `chmod 600 ~/.config/psnstats/npsso`. `psnstats` warns if the file is group/world-readable.
 - Avoid the inline `--npsso` flag except for a quick test: it lands in your shell history and is visible in `ps` output. Use `--npsso-file` or `$PSN_NPSSO` instead.
 
 ## FAQ
 
-**Can I export PS3 or Vita playtime?** No. Sony's API simply does not expose playtime for PS3/Vita titles, so no tool can.
+**Can I export PS3 or Vita playtime?** No. Sony's API does not expose playtime for PS3/Vita titles, so no tool can.
 
 **Will this get my account banned?** It uses the same unofficial API as other community tools, plus `psnawp`'s built-in rate limiting (300 req / 15 min). Normal, occasional runs are low-risk, but there is no official guarantee. Don't hammer it.
 
-**Can I export a friend's library?** Only their **public** titles, via `--user THEIR_ONLINE_ID`, and only if their privacy settings allow it.
+**Can I export a friend's library?** Only their public titles, via `--user THEIR_ONLINE_ID`, and only if their privacy settings allow it.
 
-**Can I export my wishlist?** Yes: `--wishlist` writes `wishlist.csv`/`wishlist.json` with name, edition, platforms, and current price/discount (your own account only; Sony exposes no public wishlist). Fair warning: there is no documented wishlist API, so this rides the same persisted GraphQL query the PS App uses. If Sony rotates it, the flag fails with a clear error until psnstats updates the query.
+**Can I export my wishlist?** Yes: `--wishlist` writes `wishlist.csv`/`wishlist.json` with name, edition, platforms, and current price/discount (your own account only; Sony exposes no public wishlist). There is no documented wishlist API, so this rides the same persisted GraphQL query the PS App uses. If Sony rotates it, the flag fails with a clear error until psnstats updates the query.
 
 ## Roadmap
 
-- Purchased-games list → an "owned but never played" backlog report
+- Purchased-games list, for an "owned but never played" backlog report
 - Genre/metadata enrichment (external catalog join)
 - A Steam adapter reusing the same pure analysis engine
 - `stdout` streaming for piping into other tools
 
-## Contributing
+## Contribution
 
-Issues and PRs welcome. Dev setup:
+Bug reports, feature requests, and PRs are all welcome. Dev setup:
 
 ```bash
 git clone https://github.com/t3chnaztea/awesome-psnstats
@@ -231,7 +220,11 @@ ruff check . && pytest
 
 ## Disclaimer
 
-`psnstats` is an unofficial tool. It is not affiliated with, endorsed by, or supported by Sony Interactive Entertainment. "PlayStation", "PS4", and "PS5" are trademarks of Sony Interactive Entertainment Inc. Built on the excellent [psnawp](https://github.com/isFakeAccount/psnawp) library.
+This project was not intended to be used for spam, abuse, or anything of the sort, and no such use is endorsed. `psnstats` is an unofficial tool, not affiliated with, endorsed by, or supported by Sony Interactive Entertainment. "PlayStation", "PS4", and "PS5" are trademarks of Sony Interactive Entertainment Inc.
+
+## Credit
+
+Built on the excellent [psnawp](https://github.com/isFakeAccount/psnawp) library, which handles authentication, rate limiting, and the title-stats and trophy endpoints. Special thanks to [@andshrew](https://github.com/andshrew/PlayStation-Trophies) for documenting the PlayStation API endpoints, including the wishlist query this tool uses.
 
 ## License
 
