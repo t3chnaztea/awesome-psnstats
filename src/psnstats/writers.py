@@ -11,6 +11,7 @@ import json
 from pathlib import Path
 
 from .analysis import Game
+from .fetch import WishlistItem
 
 # Base exporter columns (no --analyze needed).
 LIBRARY_COLUMNS = [
@@ -21,6 +22,20 @@ LIBRARY_COLUMNS = [
     "play_count",
     "last_played",
     "completion_progress",
+]
+
+# Wishlist export columns (--wishlist). Prices are Sony's localized display
+# strings (e.g. "$19.99"); empty for Concepts (unreleased, no SKU).
+WISHLIST_COLUMNS = [
+    "name",
+    "product_id",
+    "kind",
+    "platforms",
+    "classification",
+    "base_price",
+    "discounted_price",
+    "discount_text",
+    "box_art_url",
 ]
 
 # Enriched columns emitted with --analyze (documented in the README).
@@ -110,6 +125,40 @@ def write_analysis_csv(features: list[dict], path: Path) -> int:
                 }
             )
     return len(features)
+
+
+def wishlist_item_to_dict(item: WishlistItem) -> dict:
+    """Serialize a :class:`WishlistItem` for the wishlist JSON export."""
+    return {
+        "name": item.name,
+        "product_id": item.product_id,
+        "kind": item.kind,
+        "platforms": item.platforms,
+        "classification": item.classification,
+        "base_price": item.base_price,
+        "discounted_price": item.discounted_price,
+        "discount_text": item.discount_text,
+        "box_art_url": item.box_art_url,
+    }
+
+
+def write_wishlist_json(items: list[WishlistItem], path: Path) -> int:
+    """Write ``{"wishlist": [...]}``. Returns row count."""
+    payload = {"wishlist": [wishlist_item_to_dict(i) for i in items]}
+    path.write_text(json.dumps(payload, indent=2, ensure_ascii=False), encoding="utf-8")
+    return len(items)
+
+
+def write_wishlist_csv(items: list[WishlistItem], path: Path) -> int:
+    """Write the wishlist CSV (platforms joined with ``|``). Returns row count."""
+    with path.open("w", encoding="utf-8", newline="") as f:
+        writer = csv.DictWriter(f, fieldnames=WISHLIST_COLUMNS)
+        writer.writeheader()
+        for item in items:
+            row = wishlist_item_to_dict(item)
+            row["platforms"] = "|".join(item.platforms)
+            writer.writerow(row)
+    return len(items)
 
 
 def write_preferences(package: dict, path: Path) -> None:

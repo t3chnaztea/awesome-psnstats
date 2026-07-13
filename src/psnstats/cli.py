@@ -20,9 +20,11 @@ from .fetch import (
     AuthError,
     ForbiddenError,
     UserNotFoundError,
+    WishlistUnavailableError,
     authenticate,
     enrich_trophies,
     fetch_title_stats,
+    fetch_wishlist,
     resolve_source,
 )
 from .report import render_ascii_report, render_markdown_report
@@ -31,6 +33,8 @@ from .writers import (
     write_json,
     write_library_csv,
     write_preferences,
+    write_wishlist_csv,
+    write_wishlist_json,
 )
 
 EXIT_OK = 0
@@ -77,7 +81,7 @@ def build_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(
         prog="psnstats",
         description="Export your PlayStation Network play history to CSV/JSON and "
-        "optionally build an AI-ready taste profile, entirely on your machine.",
+        "optionally build an LLM-ready taste profile, entirely on your machine.",
         epilog=f"Get your NPSSO token: log in to PSN, then visit {NPSSO_URL}",
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
@@ -117,6 +121,13 @@ def build_parser() -> argparse.ArgumentParser:
     )
     scope.add_argument(
         "--limit", type=int, metavar="N", help="stop after N kept titles (test/demo runs)"
+    )
+    scope.add_argument(
+        "--wishlist",
+        action="store_true",
+        help="also export your store wishlist to wishlist.csv/wishlist.json "
+        "(own account only; Sony exposes no public wishlist, so this cannot "
+        "combine with --user)",
     )
 
     enrich = p.add_argument_group("enrichment")
@@ -245,6 +256,11 @@ def _main(argv: list[str] | None = None) -> int:
     # md is the analysis report, so requesting it implies --analyze.
     do_analyze = args.analyze or bool(args.compare) or "md" in formats
 
+    if args.wishlist and args.user:
+        err(c.red("error: --wishlist cannot combine with --user."))
+        err("  Sony exposes no public wishlist; only your own account's wishlist is reachable.")
+        return EXIT_FATAL
+
     npsso, npsso_warnings = resolve_npsso(args)
     for warning in npsso_warnings:
         say(c.yellow(f"warning: {warning}"), 1)
@@ -355,6 +371,31 @@ def _main(argv: list[str] | None = None) -> int:
             )
             written.append(md_path.name)
 
+    # Wishlist export (own account; store products, not played titles, so it
+    # gets its own files rather than rows in the library).
+    wishlist_failed = False
+    if args.wishlist:
+        say("fetching store wishlist...", 2)
+        try:
+            wishlist = fetch_wishlist(psnawp)
+        except WishlistUnavailableError as exc:
+            err(c.red(f"error: wishlist unavailable: {exc}"))
+            err("  the library export above still completed; if this persists, check for a")
+            err("  newer psnstats (Sony rotates this undocumented query occasionally).")
+            wishlist_failed = True
+        else:
+            say(c.dim(f"  {len(wishlist)} wishlist item(s)"), 2)
+            # Stable, un-dated filenames (like preferences.json) so agents can
+            # point at them across runs.
+            if "csv" in formats:
+                wl_csv = outdir / "wishlist.csv"
+                write_wishlist_csv(wishlist, wl_csv)
+                written.append(wl_csv.name)
+            if "json" in formats:
+                wl_json = outdir / "wishlist.json"
+                write_wishlist_json(wishlist, wl_json)
+                written.append(wl_json.name)
+
     say(c.green(f"wrote {len(written)} file(s) to {outdir}/ ({', '.join(written)})"), 1)
 
     # Report + compare to stdout.
@@ -371,6 +412,10 @@ def _main(argv: list[str] | None = None) -> int:
             say("")
             say(render_compare(delta, top=args.top))
 
+    # An explicitly requested wishlist that couldn't be fetched is a failure,
+    # even though the library export completed (partial files stay on disk).
+    if wishlist_failed:
+        return EXIT_FATAL
     return EXIT_OK
 
 

@@ -4,6 +4,26 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project
 adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.0] - 2026-07-12
+
+### Added
+- `--wishlist`: export your store wishlist to `wishlist.csv` / `wishlist.json`
+  (stable, un-dated filenames, like `preferences.json`). Own account only;
+  Sony exposes no public wishlist, so it cannot combine with `--user`. Items
+  carry name, product id, kind (Product vs pre-release Concept), platforms,
+  edition classification, current base/discounted price with sale text, and
+  box art URL.
+- A wishlist-ranking starter prompt in the README: hand `wishlist.json` plus
+  `preferences.json` to an LLM and get the wishlist ranked against how you
+  actually play.
+
+### Notes
+- The wishlist endpoint is an undocumented persisted GraphQL query (the one
+  the PS App uses). If Sony rotates it, `--wishlist` fails with a clear error
+  and exit `1`; the library export still completes first.
+
+[1.1.0]: https://github.com/t3chnaztea/awesome-psnstats/releases/tag/v1.1.0
+
 ## [1.0.1] - 2026-07-12
 
 Hardening pass from a post-ship review. No behavior change to a normal run.

@@ -119,7 +119,7 @@ And an **`agent_features`** block: a preferred session style, commitment style, 
 
 ### The prompts
 
-`preferences.json` is designed to be pasted straight into a chat with an LLM. Three starters:
+`preferences.json` is designed to be pasted straight into a chat with an LLM. Four starters:
 
 **Get recommendations:**
 
@@ -136,6 +136,10 @@ And an **`agent_features`** block: a preferred session style, commitment style, 
 **Buy advice:**
 
 > Here is my taste profile. I'm considering buying <game>. Predict how likely I am to actually finish and enjoy it, citing the specific traits and signals that support the prediction. Be honest if it matches my avoid signals.
+
+**Rank your wishlist** (run with `--wishlist`, paste `wishlist.json` too):
+
+> Here are my taste profile and my store wishlist. Rank the wishlist by how likely I am to actually play and finish each game, not by hype. Flag anything that matches my avoid signals, and tell me which one to buy next and which to quietly remove.
 
 The filename stays stable (never dated), so you can point a tool or agent at `./psn-export/preferences.json` and re-run monthly to keep it fresh.
 
@@ -171,6 +175,7 @@ Without `--analyze`, you get a leaner base library CSV (title, ids, playtime, pl
 - `--platforms LIST` — comma list of `ps4,ps5,other` (default `ps4,ps5`)
 - `--min-hours N` — skip titles under N hours (default `1`; use `0` for a full dump)
 - `--limit N` — stop after N kept titles (handy for a quick test)
+- `--wishlist` — also export your store wishlist to `wishlist.csv`/`wishlist.json` (own account only; can't combine with `--user`)
 
 **Enrichment**
 - `--trophies` — fetch trophy completion (fills completion + abandonment; adds ~80 requests on a 400-game library)
@@ -204,7 +209,7 @@ Without `--analyze`, you get a leaner base library CSV (title, ids, playtime, pl
 
 **Can I export a friend's library?** Only their **public** titles, via `--user THEIR_ONLINE_ID`, and only if their privacy settings allow it.
 
-**Can I export my wishlist?** No public endpoint exists for wishlists.
+**Can I export my wishlist?** Yes: `--wishlist` writes `wishlist.csv`/`wishlist.json` with name, edition, platforms, and current price/discount (your own account only; Sony exposes no public wishlist). Fair warning: there is no documented wishlist API, so this rides the same persisted GraphQL query the PS App uses. If Sony rotates it, the flag fails with a clear error until psnstats updates the query.
 
 ## Roadmap
 

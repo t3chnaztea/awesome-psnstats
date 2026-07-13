@@ -7,13 +7,17 @@ import json
 
 from conftest import make_game
 from psnstats.analysis import analyze_preferences
+from psnstats.fetch import WishlistItem
 from psnstats.writers import (
     ANALYSIS_COLUMNS,
     LIBRARY_COLUMNS,
+    WISHLIST_COLUMNS,
     write_analysis_csv,
     write_json,
     write_library_csv,
     write_preferences,
+    write_wishlist_csv,
+    write_wishlist_json,
 )
 
 
@@ -87,3 +91,35 @@ def test_preferences_json_is_stable_sorted(tmp_path, now):
     assert "traits" in reloaded["preferences"]
     # sort_keys makes the serialization deterministic across runs.
     assert path.read_text() == json.dumps(pkg, indent=2, sort_keys=True, ensure_ascii=False)
+
+
+def _wishlist():
+    return [
+        WishlistItem(name="Split Fiction", product_id="UP0006-PPSA08560_00-SPLITSTANDARDED0",
+                     kind="Product", platforms=["PS4", "PS5"],
+                     classification="FULL_GAME", box_art_url="https://img/x.png"),
+        WishlistItem(name="Grand Theft Auto VI", product_id="10000730", kind="Concept"),
+    ]
+
+
+def test_wishlist_csv_round_trip(tmp_path):
+    path = tmp_path / "wishlist.csv"
+    rows = write_wishlist_csv(_wishlist(), path)
+    assert rows == 2
+    with path.open(newline="") as f:
+        reader = csv.DictReader(f)
+        assert reader.fieldnames == WISHLIST_COLUMNS
+        data = list(reader)
+    assert data[0]["name"] == "Split Fiction"
+    assert data[0]["platforms"] == "PS4|PS5"
+    assert data[1]["kind"] == "Concept"
+    assert data[1]["classification"] == ""
+
+
+def test_wishlist_json_round_trip(tmp_path):
+    path = tmp_path / "wishlist.json"
+    rows = write_wishlist_json(_wishlist(), path)
+    assert rows == 2
+    payload = json.loads(path.read_text())
+    assert [i["name"] for i in payload["wishlist"]] == ["Split Fiction", "Grand Theft Auto VI"]
+    assert payload["wishlist"][0]["platforms"] == ["PS4", "PS5"]

@@ -8,7 +8,9 @@ a thin wrapper that raises our own error types.
 
 from __future__ import annotations
 
+import json
 from collections.abc import Callable, Iterable
+from dataclasses import dataclass, field
 from datetime import timezone
 
 from psnawp_api import PSNAWP
@@ -31,6 +33,14 @@ PLATFORM_LABEL = {PlatformCategory.PS4: "PS4", PlatformCategory.PS5: "PS5"}
 # psnawp self-rate-limits to 300 req / 15 min; keep trophy batches small.
 TROPHY_BATCH_SIZE = 5
 
+# The store wishlist has no documented endpoint; this is the persisted GraphQL
+# query the PS App itself uses (community-documented in
+# andshrew/PlayStation-Trophies). Sony can rotate the hash without notice, in
+# which case fetch_wishlist raises WishlistUnavailableError.
+WISHLIST_URL = "https://m.np.playstation.com/api/graphql/v1/op"
+WISHLIST_OPERATION = "metGetStoreWishlist"
+WISHLIST_QUERY_HASH = "571149e8aa4d76af7dd33b92e1d6f8f828ebc5fa8f0f6bf51a8324a0e6d71324"
+
 
 class AuthError(Exception):
     """NPSSO missing, malformed, or expired."""
@@ -42,6 +52,11 @@ class UserNotFoundError(Exception):
 
 class ForbiddenError(Exception):
     """Target library/trophies are private."""
+
+
+class WishlistUnavailableError(Exception):
+    """The wishlist GraphQL query was rejected or returned an unexpected shape
+    (most likely Sony rotated the persisted-query hash)."""
 
 
 def platform_label(category) -> str:
@@ -146,6 +161,83 @@ def fetch_title_stats(
         "included": len(games),
     }
     return games, fetch_stats
+
+
+@dataclass
+class WishlistItem:
+    """One store-wishlist entry.
+
+    ``kind`` is Sony's ``__typename``: ``Product`` (a purchasable SKU, possibly
+    one of several editions) or ``Concept`` (an unreleased game with no SKU yet,
+    e.g. a pre-announcement page). Concepts have no platforms/classification/price.
+    Prices are Sony's localized display strings (e.g. ``"$19.99"``), kept verbatim.
+    """
+
+    name: str
+    product_id: str
+    kind: str
+    platforms: list[str] = field(default_factory=list)
+    classification: str = ""
+    base_price: str = ""
+    discounted_price: str = ""
+    discount_text: str = ""
+    box_art_url: str = ""
+
+
+def normalize_wishlist_entry(entry: dict) -> WishlistItem:
+    """Pure: convert one raw ``storeWishlist`` element into a :class:`WishlistItem`."""
+    box_art = entry.get("boxArt") or {}
+    price = entry.get("price") or {}
+    return WishlistItem(
+        name=entry.get("name") or "Unknown",
+        product_id=str(entry.get("id") or ""),
+        kind=entry.get("__typename") or "Product",
+        platforms=[p for p in (entry.get("platforms") or []) if p],
+        classification=entry.get("storeDisplayClassification") or "",
+        base_price=price.get("basePrice") or "",
+        discounted_price=price.get("discountedPrice") or "",
+        discount_text=price.get("discountText") or "",
+        box_art_url=box_art.get("url") or "",
+    )
+
+
+def fetch_wishlist(psnawp) -> list[WishlistItem]:
+    """Fetch the authenticated account's store wishlist.
+
+    Own-account only: Sony exposes no public wishlist for other users.
+    Raises :class:`WishlistUnavailableError` if the persisted query is rejected
+    or the response shape changed.
+    """
+    params = {
+        "operationName": WISHLIST_OPERATION,
+        "variables": "{}",
+        "extensions": json.dumps(
+            {"persistedQuery": {"version": 1, "sha256Hash": WISHLIST_QUERY_HASH}},
+            separators=(",", ":"),
+        ),
+    }
+    # Apollo's CSRF guard rejects the request without an operation-name (or
+    # JSON content-type) header; these are the headers the PS App sends.
+    headers = {
+        "x-apollo-operation-name": WISHLIST_OPERATION,
+        "content-type": "application/json",
+    }
+    try:
+        payload = psnawp.authenticator.get(
+            url=WISHLIST_URL, params=params, headers=headers
+        ).json()
+    except PSNAWPForbiddenError as exc:
+        raise ForbiddenError(str(exc)) from exc
+    except Exception as exc:  # noqa: BLE001 - any 4xx/5xx/parse error means "unavailable"
+        raise WishlistUnavailableError(str(exc)) from exc
+
+    entries = (payload.get("data") or {}).get("storeWishlist")
+    if entries is None:
+        detail = payload.get("errors") or "no storeWishlist key in response"
+        raise WishlistUnavailableError(
+            f"unexpected response (Sony may have rotated the query hash): {detail}"
+        )
+    return [normalize_wishlist_entry(e) for e in entries]
 
 
 def enrich_trophies(
