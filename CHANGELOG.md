@@ -4,6 +4,19 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project
 adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.1] - 2026-07-12
+
+Docs-only release; no code changes.
+
+### Changed
+- README rewritten in a plain, instructional style modeled on psnawp's:
+  install, getting started with the npsso steps and a worked example, then
+  reference sections. Competitive positioning removed; a Credit section
+  (psnawp, andshrew's endpoint documentation) added. This refreshes the
+  PyPI project page.
+
+[1.1.1]: https://github.com/t3chnaztea/awesome-psnstats/releases/tag/v1.1.1
+
 ## [1.1.0] - 2026-07-12
 
 ### Added
