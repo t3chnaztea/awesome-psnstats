@@ -1,12 +1,16 @@
 name: Release
 
-# Publishes to PyPI when a v* tag is pushed, using the PYPI_API_TOKEN repo
-# secret (project owner rotates/scopes it after first publish).
+# Publishes to PyPI via Trusted Publishing (OIDC) on a v* tag. No stored token:
+# PyPI is configured with this repo + release.yml + the "pypi" environment as a
+# trusted publisher, and a short-lived token is minted per run.
 
 on:
   push:
     tags:
       - "v*"
+
+permissions:
+  contents: read
 
 jobs:
   build:
@@ -28,12 +32,13 @@ jobs:
   publish:
     needs: build
     runs-on: ubuntu-latest
+    environment: pypi
+    permissions:
+      id-token: write   # mint the OIDC token for Trusted Publishing
     steps:
       - uses: actions/download-artifact@v4
         with:
           name: dist
           path: dist/
       - name: Publish to PyPI
-        uses: pypa/gh-action-pypi-publish@release/v1
-        with:
-          password: ${{ secrets.PYPI_API_TOKEN }}
+        uses: pypa/gh-action-pypi-publish@cef221092ed1bacb1cc03d23a2d87d1d172e277b  # v1.14.0
