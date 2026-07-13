@@ -183,7 +183,8 @@ Without `--analyze`, you get a leaner base library CSV (title, ids, playtime, pl
 - An NPSSO is a **session cookie**. Treat it like a password: anyone with it can act as you on PSN.
 - It **expires after ~60 days**; regenerate it when auth starts failing.
 - `psnstats` sends it **only to Sony's own API endpoints** — never to any third party.
-- Prefer a file over an env var for long-term use, and lock it down: `chmod 600 ~/.config/psnstats/npsso`.
+- Prefer a file over an env var for long-term use, and lock it down: `chmod 600 ~/.config/psnstats/npsso`. `psnstats` warns if the file is group/world-readable.
+- Avoid the inline `--npsso` flag except for a quick test: it lands in your shell history and is visible in `ps` output. Use `--npsso-file` or `$PSN_NPSSO` instead.
 
 ## FAQ
 

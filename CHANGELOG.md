@@ -4,6 +4,25 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project
 adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.1] - 2026-07-12
+
+Hardening pass from a post-ship review. No behavior change to a normal run.
+
+### Added
+- `--format md` now implies `--analyze` instead of silently writing nothing.
+- Warning when the NPSSO token file is group/world-readable, and a distinct
+  message when it exists but can't be read (no longer silently ignored).
+
+### Changed
+- Unexpected errors now print one clean line and exit `1` instead of dumping a
+  raw traceback; the full traceback prints only with `--verbose`.
+- `--npsso` help and the README security section note that inline tokens land
+  in shell history and `ps` output; prefer `--npsso-file` or `$PSN_NPSSO`.
+- Release workflow publishes to PyPI via Trusted Publishing (OIDC) again, with
+  least-privilege `permissions` blocks; no stored PyPI token.
+
+[1.0.1]: https://github.com/t3chnaztea/awesome-psnstats/releases/tag/v1.0.1
+
 ## [1.0.0] - 2026-07-12
 
 Initial public release.

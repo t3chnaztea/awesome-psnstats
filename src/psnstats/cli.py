@@ -9,6 +9,7 @@ import argparse
 import json
 import os
 import sys
+import traceback
 from datetime import datetime
 from pathlib import Path
 
@@ -82,7 +83,12 @@ def build_parser() -> argparse.ArgumentParser:
     )
 
     auth = p.add_argument_group("authentication (precedence: --npsso > --npsso-file > $PSN_NPSSO)")
-    auth.add_argument("--npsso", metavar="TOKEN", help="NPSSO token, passed inline")
+    auth.add_argument(
+        "--npsso",
+        metavar="TOKEN",
+        help="NPSSO token, passed inline (lands in shell history and `ps` output; "
+        "prefer --npsso-file or $PSN_NPSSO)",
+    )
     auth.add_argument(
         "--npsso-file",
         metavar="PATH",
@@ -142,6 +148,7 @@ def build_parser() -> argparse.ArgumentParser:
         default="csv,json",
         metavar="LIST",
         help="comma list of csv,json,md,all (default: csv,json). "
+        "md is the analysis report and implies --analyze; "
         "preferences.json is always written under --analyze.",
     )
 
@@ -161,17 +168,30 @@ def build_parser() -> argparse.ArgumentParser:
     return p
 
 
-def resolve_npsso(args) -> str | None:
-    """Apply auth precedence: --npsso > --npsso-file (or default probe) > env."""
+def resolve_npsso(args) -> tuple[str | None, list[str]]:
+    """Apply auth precedence: --npsso > --npsso-file (or default probe) > env.
+
+    Returns ``(token, warnings)``. Warnings flag an over-permissive token file
+    (group/world-readable) or one that exists but can't be read (instead of
+    silently falling through to the env var and masking a permission typo).
+    """
+    warnings: list[str] = []
     if args.npsso:
-        return args.npsso.strip()
+        return args.npsso.strip(), warnings
     candidate = Path(args.npsso_file) if args.npsso_file else DEFAULT_CONFIG_NPSSO
     if candidate.exists():
         try:
-            return candidate.read_text(encoding="utf-8").strip()
-        except OSError:
-            return None
-    return os.environ.get("PSN_NPSSO", "").strip() or None
+            if candidate.stat().st_mode & 0o077:
+                warnings.append(
+                    f"NPSSO file {candidate} is group/world-readable; run: chmod 600 {candidate}"
+                )
+            return candidate.read_text(encoding="utf-8").strip(), warnings
+        except OSError as exc:
+            warnings.append(
+                f"NPSSO file {candidate} exists but could not be read ({exc}); "
+                "falling back to $PSN_NPSSO"
+            )
+    return (os.environ.get("PSN_NPSSO", "").strip() or None), warnings
 
 
 def parse_platforms(raw: str) -> list[str]:
@@ -192,7 +212,7 @@ def parse_formats(raw: str) -> set[str]:
     return set(items) or {"csv", "json"}
 
 
-def main(argv: list[str] | None = None) -> int:
+def _main(argv: list[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
 
     verbosity = 2
@@ -222,9 +242,12 @@ def main(argv: list[str] | None = None) -> int:
         err(c.red(f"error: {exc}"))
         return EXIT_FATAL
 
-    do_analyze = args.analyze or bool(args.compare)
+    # md is the analysis report, so requesting it implies --analyze.
+    do_analyze = args.analyze or bool(args.compare) or "md" in formats
 
-    npsso = resolve_npsso(args)
+    npsso, npsso_warnings = resolve_npsso(args)
+    for warning in npsso_warnings:
+        say(c.yellow(f"warning: {warning}"), 1)
     if not npsso:
         err(c.red("error: no NPSSO token found."))
         err("  supply --npsso, --npsso-file PATH, or set $PSN_NPSSO")
@@ -349,6 +372,27 @@ def main(argv: list[str] | None = None) -> int:
             say(render_compare(delta, top=args.top))
 
     return EXIT_OK
+
+
+def main(argv: list[str] | None = None) -> int:
+    """Top-level guard around the fetch/enrich/write pipeline.
+
+    Known conditions (auth, missing user, private library, nothing matched) are
+    handled with specific messages and exit codes inside ``_main``. Anything
+    unexpected gets one clean error line and ``EXIT_FATAL`` instead of a raw
+    traceback; the full traceback prints only under ``--verbose``.
+    """
+    raw_args = sys.argv[1:] if argv is None else argv
+    try:
+        return _main(argv)
+    except KeyboardInterrupt:
+        print("\naborted.", file=sys.stderr)
+        return EXIT_FATAL
+    except Exception as exc:  # noqa: BLE001 - deliberate top-level CLI guard
+        print(f"error: unexpected failure ({type(exc).__name__}): {exc}", file=sys.stderr)
+        if "--verbose" in raw_args:
+            traceback.print_exc()
+        return EXIT_FATAL
 
 
 def _load_previous(path_str: str, err, c) -> dict | None:
