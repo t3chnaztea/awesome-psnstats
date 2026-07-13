@@ -4,6 +4,16 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project
 adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Security
+- CSV exports now neutralize formula injection: any `title`/`name` cell that
+  starts with a spreadsheet formula trigger (`= + - @` or tab/CR) is prefixed
+  with `'` so a crafted game title or wishlist name can't execute as a formula
+  when the file is opened in Excel/Sheets.
+- Redact the NPSSO token from any unexpected error surfaced during
+  authentication, so it can never echo back to the terminal, shell logs, or CI.
+
 ## [1.1.1] - 2026-07-12
 
 Docs-only release; no code changes.

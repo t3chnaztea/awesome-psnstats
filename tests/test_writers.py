@@ -123,3 +123,29 @@ def test_wishlist_json_round_trip(tmp_path):
     payload = json.loads(path.read_text())
     assert [i["name"] for i in payload["wishlist"]] == ["Split Fiction", "Grand Theft Auto VI"]
     assert payload["wishlist"][0]["platforms"] == ["PS4", "PS5"]
+
+
+def test_library_csv_neutralizes_formula_injection(tmp_path):
+    """A title starting with a formula trigger is written as inert text."""
+    games = [
+        make_game(title="=HYPERLINK(\"http://evil\")", title_id="X1", system="PS5",
+                  playtime_hours=3.0, play_count=1),
+        make_game(title="The Last of Us", title_id="X2", system="PS4",
+                  playtime_hours=5.0, play_count=2),
+    ]
+    path = tmp_path / "lib.csv"
+    write_library_csv(games, path)
+    with path.open(newline="") as f:
+        rows = list(csv.DictReader(f))
+    assert rows[0]["title"] == "'=HYPERLINK(\"http://evil\")"  # prefixed, inert
+    assert rows[1]["title"] == "The Last of Us"  # normal title untouched
+
+
+def test_wishlist_csv_neutralizes_formula_injection(tmp_path):
+    item = WishlistItem(name="@SUM(1+1)", product_id="P1", kind="Product",
+                        platforms=["PS5"], base_price="$19.99")
+    path = tmp_path / "wishlist.csv"
+    write_wishlist_csv([item], path)
+    with path.open(newline="") as f:
+        rows = list(csv.DictReader(f))
+    assert rows[0]["name"] == "'@SUM(1+1)"

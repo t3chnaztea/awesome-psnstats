@@ -282,6 +282,12 @@ def _main(argv: list[str] | None = None) -> int:
         err(c.red("error: authentication failed. Your NPSSO token is likely expired (~60-day life)."))
         err(f"  get a fresh one at: {NPSSO_URL}")
         return EXIT_AUTH
+    except Exception as exc:  # noqa: BLE001 - scrub the token before any surfaces
+        # This is the only point the raw NPSSO is handed to third-party code, so
+        # an *unexpected* error here is the one place its message could echo the
+        # token back. Redact it before it can reach the terminal/logs/CI, then
+        # re-raise for the top-level guard to report generically.
+        raise RuntimeError(str(exc).replace(npsso, "<redacted-npsso>")) from None
     say(c.green(f"authenticated as {c.bold(my_id)}"), 1)
 
     # Resolve whose library.

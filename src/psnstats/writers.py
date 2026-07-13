@@ -13,6 +13,19 @@ from pathlib import Path
 from .analysis import Game
 from .fetch import WishlistItem
 
+# Leading characters that a spreadsheet (Excel/Sheets) treats as a formula.
+# Game titles and wishlist names are effectively free text, so neutralize any
+# cell that starts with one to prevent CSV formula injection.
+_FORMULA_TRIGGERS = ("=", "+", "-", "@", "\t", "\r")
+
+
+def _safe_cell(value):
+    """Prefix a leading-formula string cell with ``'`` so it stays inert text."""
+    if isinstance(value, str) and value and value[0] in _FORMULA_TRIGGERS:
+        return "'" + value
+    return value
+
+
 # Base exporter columns (no --analyze needed).
 LIBRARY_COLUMNS = [
     "title",
@@ -89,7 +102,7 @@ def write_library_csv(games: list[Game], path: Path) -> int:
         writer.writeheader()
         for g in games:
             row = game_to_dict(g)
-            writer.writerow({col: row.get(col, "") for col in LIBRARY_COLUMNS})
+            writer.writerow({col: _safe_cell(row.get(col, "")) for col in LIBRARY_COLUMNS})
     return len(games)
 
 
@@ -108,7 +121,7 @@ def write_analysis_csv(features: list[dict], path: Path) -> int:
             last = feat.get("last_played") or ""
             writer.writerow(
                 {
-                    "title": feat["title"],
+                    "title": _safe_cell(feat["title"]),
                     "system": feat["system"],
                     "playtime_hours": round(feat["playtime_hours"], 2),
                     "play_count": feat["play_count"],
@@ -157,7 +170,7 @@ def write_wishlist_csv(items: list[WishlistItem], path: Path) -> int:
         for item in items:
             row = wishlist_item_to_dict(item)
             row["platforms"] = "|".join(item.platforms)
-            writer.writerow(row)
+            writer.writerow({k: _safe_cell(v) for k, v in row.items()})
     return len(items)
 
 
